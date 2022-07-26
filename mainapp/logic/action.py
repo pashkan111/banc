@@ -63,5 +63,21 @@ class ActionCreator:
             delta=self.delta,
             payment_type=self.payment_type.CASH            
         )
+        
+    def create_account(self):
+        Action.objects.create(
+            account=self.account,
+            balance_action=self.balance_action.CREATED,
+            delta=0,
+            payment_type=self.payment_type.NONE            
+        )
+        
+    def update_account(self):
+        Action.objects.create(
+            account=self.account,
+            balance_action=self.balance_action.UPDATED,
+            delta=0,
+            payment_type=self.payment_type.NONE            
+        ) 
 
         

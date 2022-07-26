@@ -37,6 +37,7 @@ class Account(models.Model):
 class Action(models.Model):
     class BalanceAction(DbEnum):
         CREATED = 'Created'
+        UPDATED = 'Updated'
         DEPOSITED = 'Deposited'
         WITHDRAWNED = 'Withdrawned'
         
