@@ -1,5 +1,5 @@
 from mainapp import models
-from mainapp.logic.balance import get_balance
+from mainapp.logic.balance import AccountBalance
 from .helpers import SerializerWriteAllowMethodField
 from rest_framework import serializers
 
@@ -17,7 +17,7 @@ class AccountSerializer(serializers.ModelSerializer):
         fields=('uid', 'created', 'updated', 'balance', 'username')
 
     def get_balance(self, obj: models.Account):
-        balance = get_balance(obj)
+        balance = AccountBalance.get_balance(obj)
         return balance
     
     def get_username(self, obj: models.Account):

@@ -79,5 +79,3 @@ class ActionCreator:
             delta=0,
             payment_type=self.payment_type.NONE            
         ) 
-
-        

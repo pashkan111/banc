@@ -7,6 +7,4 @@ def validate_money(sum: int) -> Optional[int]:
         raise ValueError
     if sum <= 0:
         raise InvalidSum
-    # if (self.balance + sum) > self.MAX_BALANCE:
-    #     raise LimitExceeded
     return sum
