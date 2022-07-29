@@ -9,6 +9,7 @@ from .schemas import (
     DepositSchema, validate_input, TransferSchema
     )
 from mainapp.logic.action import ActionCreator
+from mainapp.logic.balance import check_balances
 
 
 class DepositMoneyView(views.APIView):
@@ -18,7 +19,10 @@ class DepositMoneyView(views.APIView):
         user: Users = request.user
         account: Account = user.account
         validated_data = validate_input(DepositSchema, request.data)
+        check_balances(account.uid, validated_data.delta)
         ActionCreator(account=account, delta=validated_data.delta).deposit()
+        account.balance += validated_data.delta
+        account.save()
         return response.Response(status=status.HTTP_201_CREATED)
     
     
@@ -30,11 +34,16 @@ class TransferMoneyView(views.APIView):
         account_from: Account = user.account
         validated_data = validate_input(TransferSchema, request.data)
         account_to = Account.get_account_by_id(validated_data.uid)
+        check_balances(account_to.uid, validated_data.delta, account_from.uid)
         ActionCreator(
             account=account_to,
             account_from=account_from,
             delta=validated_data.delta
             ).transfer_money()
+        account_from.balance -= validated_data.delta
+        account_to.balance += validated_data.delta
+        account_to.save()
+        account_from.save()
         return response.Response(status=status.HTTP_201_CREATED)
 
 

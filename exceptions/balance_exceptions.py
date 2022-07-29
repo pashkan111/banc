@@ -1,10 +1,17 @@
-class LimitExceeded(Exception):
-    pass
+from rest_framework.exceptions import APIException
+from rest_framework import status
 
 
-class InvalidSum(Exception):
-    pass
+class LimitExceeded(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = ('Limit exceeded')
 
 
-class NotEnoughMoney(Exception):
-    pass
+class InvalidSum(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = ('Invalid sum of money')
+
+
+class NotEnoughMoney(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = ('Not enough money on balance')

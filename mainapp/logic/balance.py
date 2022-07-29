@@ -25,16 +25,17 @@ class AccountBalance:
 
 
 def check_balances(
-    account_uid: Account, 
+    account_to_uid: Account, 
     delta: int,
     account_from_uid: Optional[Account]=None, 
     ) -> Optional[bool]:
     """Checks limits of accounts"""
     with atomic():
         account = Account.objects.filter(
-            uid=account_uid
+            uid=account_to_uid
             ).select_for_update(nowait=True).get()
         account_balance = account.balance
+        print(account_balance)
         account_balance += delta
         if account_balance > Account.MAX_BALANCE:
             raise LimitExceeded
