@@ -17,33 +17,30 @@ class AccountBalance:
         )\
         .aggregate(sum=Sum(F('deposited') - F('withdrawned')))
         return balance['sum']
-    
-    @classmethod
-    def set_balance(cls, account: Account, balance: int):
-        account.balance = balance
-        account.save(update_fields=['balance'])
 
 
 def check_balances(
-    account_to_uid: Account, 
     delta: int,
-    account_from_uid: Optional[Account]=None, 
+    account_deposit_uid: Optional[Account]=None, 
+    account_withdraw_uid: Optional[Account]=None, 
     ) -> Optional[bool]:
     """Checks limits of accounts"""
+    if not any((account_deposit_uid, account_withdraw_uid)):
+        raise Exception
     with atomic():
-        account = Account.objects.filter(
-            uid=account_to_uid
-            ).select_for_update(nowait=True).get()
-        account_balance = account.balance
-        print(account_balance)
-        account_balance += delta
-        if account_balance > Account.MAX_BALANCE:
-            raise LimitExceeded
-        if account_from_uid is not None:
-            account_from = Account.objects.filter(
-                uid=account_from_uid
+        if account_deposit_uid is not None:
+            account_deposit = Account.objects.filter(
+                uid=account_deposit_uid
                 ).select_for_update(nowait=True).get()
-            account_from_balance = account_from.balance
+            account_balance = AccountBalance.get_balance(account_deposit)
+            account_balance += delta
+            if account_balance > Account.MAX_BALANCE:
+                raise LimitExceeded
+        if account_withdraw_uid is not None:
+            account_withdraw = Account.objects.filter(
+                uid=account_withdraw_uid
+                ).select_for_update(nowait=True).get()
+            account_from_balance = AccountBalance.get_balance(account_withdraw)
             account_from_balance -= delta
             if account_from_balance < Account.MIN_BALANCE:
                 raise NotEnoughMoney

@@ -55,7 +55,7 @@ class ActionCreator:
             payment_type=self.payment_type.TRANSFER            
         )
     
-    def takeout_money(self):
+    def withdraw_money(self):
         """Take out money from account"""
         Action.objects.create(
             account=self.account,

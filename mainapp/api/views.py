@@ -6,7 +6,7 @@ from .serializers import (
     UserSerializer, AccountSerializer
     )
 from .schemas import (
-    DepositSchema, validate_input, TransferSchema
+    DepositWithdrawSchema, validate_input, TransferSchema
     )
 from mainapp.logic.action import ActionCreator
 from mainapp.logic.balance import check_balances
@@ -18,13 +18,28 @@ class DepositMoneyView(views.APIView):
     def post(self, request: HttpRequest):
         user: Users = request.user
         account: Account = user.account
-        validated_data = validate_input(DepositSchema, request.data)
-        check_balances(account.uid, validated_data.delta)
+        validated_data = validate_input(DepositWithdrawSchema, request.data)
+        check_balances(
+            delta=validated_data.delta,
+            account_deposit_uid= account.uid
+            )
         ActionCreator(account=account, delta=validated_data.delta).deposit()
-        account.balance += validated_data.delta
-        account.save()
         return response.Response(status=status.HTTP_201_CREATED)
+
+
+class WithdrawMoneyView(views.APIView):
+    permission_classes = (IsAuthenticated,)
     
+    def post(self, request: HttpRequest):
+        user: Users = request.user
+        account: Account = user.account
+        validated_data = validate_input(DepositWithdrawSchema, request.data)
+        check_balances(
+            delta=validated_data.delta,
+            account_withdraw_uid=account.uid
+            )
+        ActionCreator(account=account, delta=validated_data.delta).withdraw_money()
+        return response.Response(status=status.HTTP_201_CREATED)
     
 class TransferMoneyView(views.APIView):
     permission_classes = (IsAuthenticated,)
@@ -34,16 +49,16 @@ class TransferMoneyView(views.APIView):
         account_from: Account = user.account
         validated_data = validate_input(TransferSchema, request.data)
         account_to = Account.get_account_by_id(validated_data.uid)
-        check_balances(account_to.uid, validated_data.delta, account_from.uid)
+        check_balances(
+            delta=validated_data.delta,
+            account_deposit_uid=account_to.uid,
+            account_withdraw_uid=account_from.uid,
+            )
         ActionCreator(
             account=account_to,
             account_from=account_from,
             delta=validated_data.delta
             ).transfer_money()
-        account_from.balance -= validated_data.delta
-        account_to.balance += validated_data.delta
-        account_to.save()
-        account_from.save()
         return response.Response(status=status.HTTP_201_CREATED)
 
 
@@ -59,6 +74,9 @@ class AccountView(viewsets.ModelViewSet):
     
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, partial=True, **kwargs)
+    
+    def perform_update(self, serializer):
+        super().perform_update(serializer)  
 
 
 class UserView(viewsets.ModelViewSet):

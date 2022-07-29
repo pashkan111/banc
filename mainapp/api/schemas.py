@@ -11,7 +11,7 @@ class ResponseSchema(BaseModel):
     pass 
 
 
-class DepositSchema(RequestSchema):
+class DepositWithdrawSchema(RequestSchema):
     delta: int
     
     
