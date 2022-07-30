@@ -74,3 +74,7 @@ class Action(models.Model):
         return f'Account ID - {self.account.id}. '\
             f'Action - {self.balance_action}. Delta - {self.delta}'
 
+
+class Aggregates(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.PROTECT)
+    balance = models.PositiveIntegerField()

@@ -9,13 +9,15 @@ from django.db.transaction import atomic
 class AccountBalance:
     @classmethod
     def get_balance(cls, account: Account) -> int:
-        "Return balance of the account"
-        balance = Action.objects.filter(account=account)\
-        .annotate(
+        """Return balance of the account"""
+        balance = Action.objects.filter(
+            account=account
+        ).annotate(
             deposited=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.DEPOSITED)), 0), 
             withdrawned=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.WITHDRAWNED)), 0)
-        )\
-        .aggregate(sum=Sum(F('deposited') - F('withdrawned')))
+        ).aggregate(
+            sum=Sum(F('deposited') - F('withdrawned'))
+        )
         return balance['sum']
 
 
