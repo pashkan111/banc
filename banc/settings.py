@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     'mainapp',
     'rest_framework',
     'rest_framework.authtoken',
-    'django_extensions'
+    'django_extensions',
+    'django_celery_beat'
 ]
 
 SHELL_PLUS_PRINT_SQL = True
@@ -70,11 +71,16 @@ WSGI_APPLICATION = 'banc.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'service',
+            'USER': 'postgres',
+            'PASSWORD': 1234,
+            'HOST': 'db',
+            'PORT': 5432
+    },
 }
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -121,5 +127,12 @@ CELERY_RESULT_BACKEND='redis://redis:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_IMPORTS = ("mainapp.tasks", )
 
+CELERY_BEAT_SCHEDULE = {
+    'make-aggregates-task': {
+        'task': 'mainapp.tasks.make_aggregates_task',
+        'schedule': crontab(minute="*/1"),
+    },
+}
 DJANGO_CELERY_BEAT_TZ_AWARE=False

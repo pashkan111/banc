@@ -1,5 +1,5 @@
 from typing import Optional
-from mainapp.models import Account, Action
+from mainapp.models import Account, Action, Aggregates
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Coalesce
 from exceptions.balance_exceptions import LimitExceeded, NotEnoughMoney
@@ -19,6 +19,23 @@ class AccountBalance:
             sum=Sum(F('deposited') - F('withdrawned'))
         )
         return balance['sum']
+    
+    @classmethod
+    def get_last_aggregate(cls, account: Account):
+        return Aggregates.objects.filter(
+            account=account
+            ).order_by('date').last()
+    
+    @classmethod  
+    def make_aggregates_for_all_accounts(cls):
+        accounts = Account.objects.all()
+        for acc in accounts:
+            with atomic():
+                balance = cls.get_balance(acc)
+                Aggregates.objects.create(
+                    account=acc,
+                    balance=balance
+                )
 
 
 def check_balances(

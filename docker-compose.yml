@@ -1,18 +1,43 @@
 version: '3'
 
 services:
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=service
+    volumes:
+      - ./volumes/postgresql/pg-data1:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  web:
+    build: 
+      context: .
+    command: /bin/sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8080"
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - db
+
   redis:
     image: "redis:alpine"
 
   celery:
     restart: always
-    image: bank:1.1
+    build: 
+      context: .
     command: celery -A banc worker -l info
     depends_on:
       - redis
 
   celery-beat: 
-    image: bank:1.1
+    build: 
+      context: .
     command: celery -A banc beat -l info
     depends_on:
       - redis

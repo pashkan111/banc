@@ -77,4 +77,8 @@ class Action(models.Model):
 
 class Aggregates(models.Model):
     account = models.ForeignKey(Account, on_delete=models.PROTECT)
+    date = models.DateTimeField(auto_now_add=True)
     balance = models.PositiveIntegerField()
+    
+    def __str__(self):
+        return f'The aggregate of {self.account.user.username}'
