@@ -1,6 +1,8 @@
 from pathlib import Path
+from celery.schedules import crontab
+import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -113,3 +115,11 @@ STATIC_URL = 'static/'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CELERY_BROKER_URL='redis://redis:6379'
+CELERY_RESULT_BACKEND='redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+DJANGO_CELERY_BEAT_TZ_AWARE=False
