@@ -1,15 +1,16 @@
 from rest_framework import views, response, status, viewsets
 from rest_framework.request import HttpRequest
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from mainapp.models import Users, Account
+from mainapp.models import Action, Users, Account
 from .serializers import (
-    UserSerializer, AccountSerializer
+    UserSerializer, AccountSerializer, ActionSerializer
     )
 from .schemas import (
-    DepositWithdrawSchema, validate_input, TransferSchema
+    DepositWithdrawSchema, validate_input, TransferSchema, 
+    DepositWithdrawResponseSchema
     )
 from mainapp.logic.action import ActionCreator
-from mainapp.logic.balance import check_balances
+from mainapp.logic.balance import check_balances, AccountBalance
 
 
 class DepositMoneyView(views.APIView):
@@ -24,7 +25,9 @@ class DepositMoneyView(views.APIView):
             account_deposit_uid= account.uid
             )
         ActionCreator(account=account, delta=validated_data.delta).deposit()
-        return response.Response(status=status.HTTP_201_CREATED)
+        balance = AccountBalance.get_balance(account)
+        resp = DepositWithdrawResponseSchema(sum=balance)
+        return response.Response(data=resp.dict(), status=status.HTTP_201_CREATED)
 
 
 class WithdrawMoneyView(views.APIView):
@@ -39,7 +42,10 @@ class WithdrawMoneyView(views.APIView):
             account_withdraw_uid=account.uid
             )
         ActionCreator(account=account, delta=validated_data.delta).withdraw_money()
-        return response.Response(status=status.HTTP_201_CREATED)
+        balance = AccountBalance.get_balance(account)
+        resp = DepositWithdrawResponseSchema(sum=balance)
+        return response.Response(data=resp.dict(), status=status.HTTP_201_CREATED)
+    
     
 class TransferMoneyView(views.APIView):
     permission_classes = (IsAuthenticated,)
@@ -59,7 +65,9 @@ class TransferMoneyView(views.APIView):
             account_from=account_from,
             delta=validated_data.delta
             ).transfer_money()
-        return response.Response(status=status.HTTP_201_CREATED)
+        balance = AccountBalance.get_balance(account_from)
+        resp = DepositWithdrawResponseSchema(sum=balance)
+        return response.Response(data=resp.dict(), status=status.HTTP_201_CREATED)
 
 
 class AccountView(viewsets.ModelViewSet):
@@ -76,8 +84,18 @@ class AccountView(viewsets.ModelViewSet):
         return super().update(request, *args, partial=True, **kwargs)
     
     def perform_update(self, serializer):
-        super().perform_update(serializer)  
-
+        super().perform_update(serializer)
+        
+        
+class ActionView(viewsets.ModelViewSet):
+    serializer_class = ActionSerializer
+    permission_classes = (IsAuthenticated,)
+    
+    def get_queryset(self):
+        user: Users = self.request.user
+        account: Account = user.account
+        return Action.objects.filter(account=account)
+        
 
 class UserView(viewsets.ModelViewSet):
     serializer_class = UserSerializer

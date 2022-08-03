@@ -4,6 +4,18 @@ from .helpers import SerializerWriteAllowMethodField
 from rest_framework import serializers
 
 
+class ActionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Action
+        fields = (
+            'account_from',
+            'created',
+            'balance_action',
+            'payment_type',
+            'delta'
+        )
+    
+
 class AccountSerializer(serializers.ModelSerializer):
     balance = serializers.SerializerMethodField(
         source='get_balance', read_only=True

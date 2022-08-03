@@ -8,7 +8,7 @@ class RequestSchema(BaseModel):
 
 
 class ResponseSchema(BaseModel):
-    pass 
+    pass
 
 
 class DepositWithdrawSchema(RequestSchema):
@@ -18,6 +18,10 @@ class DepositWithdrawSchema(RequestSchema):
 class TransferSchema(RequestSchema):
     delta: int
     uid: str
+    
+
+class DepositWithdrawResponseSchema(ResponseSchema):
+    sum: int
 
     
 def validate_input(schema: Type[RequestSchema], data: dict) -> Optional[BaseModel]:

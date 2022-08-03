@@ -6,25 +6,34 @@ from exceptions.balance_exceptions import LimitExceeded, NotEnoughMoney
 from django.db.transaction import atomic
 
 
-class AccountBalance:
+class AccountBalance:   
     @classmethod
     def get_balance(cls, account: Account) -> int:
         """Return balance of the account"""
-        balance = Action.objects.filter(
-            account=account
-        ).annotate(
-            deposited=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.DEPOSITED)), 0), 
-            withdrawned=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.WITHDRAWNED)), 0)
-        ).aggregate(
-            sum=Sum(F('deposited') - F('withdrawned'))
-        )
-        return balance['sum']
-    
-    @classmethod
-    def get_last_aggregate(cls, account: Account):
-        return Aggregates.objects.filter(
-            account=account
-            ).order_by('date').last()
+        with atomic():
+            aggregate = Aggregates.objects.get_current(account)
+            if aggregate is None:
+                balance = Action.objects.filter(
+                    account=account
+                ).annotate(
+                    deposited=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.DEPOSITED)), 0), 
+                    withdrawned=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.WITHDRAWNED)), 0)
+                ).aggregate(
+                    sum=Coalesce(Sum(F('deposited') - F('withdrawned')), 0)
+                )
+                return balance['sum']
+            else:
+                balance = Action.objects.filter(
+                    account=account,
+                    created__gt=aggregate.date
+                ).annotate(
+                    deposited=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.DEPOSITED)), 0), 
+                    withdrawned=Coalesce(Sum('delta', filter=Q(balance_action=Action.BalanceAction.WITHDRAWNED)), 0)
+                ).aggregate(
+                    sum=Coalesce(Sum(F('deposited') - F('withdrawned')), 0)
+                )
+                total_balance = balance['sum'] + aggregate.balance
+                return total_balance
     
     @classmethod  
     def make_aggregates_for_all_accounts(cls):

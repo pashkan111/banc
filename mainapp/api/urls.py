@@ -10,4 +10,5 @@ urlpatterns = [
     path('account', views.AccountView.as_view({
         'get': 'retrieve', 'patch': 'update'
         })),
+    path('history', views.ActionView.as_view({'get': 'list'})),
 ]

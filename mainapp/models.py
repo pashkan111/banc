@@ -75,10 +75,19 @@ class Action(models.Model):
             f'Action - {self.balance_action}. Delta - {self.delta}'
 
 
+class AggregateManager(models.Manager):
+    def get_current(self, account: Account):
+        return self.get_queryset().filter(
+            account=account
+        ).order_by('date').last()
+
+
 class Aggregates(models.Model):
     account = models.ForeignKey(Account, on_delete=models.PROTECT)
     date = models.DateTimeField(auto_now_add=True)
     balance = models.PositiveIntegerField()
-    
+    objects = AggregateManager()
+
     def __str__(self):
-        return f'The aggregate of {self.account.user.username}'
+        return f'The aggregate of {self.account.user.username} from '\
+            f'{str(self.date)}'
