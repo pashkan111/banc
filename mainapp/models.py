@@ -1,10 +1,12 @@
 from django.db import models
-from django.contrib.auth import get_user_model
 import uuid
 from helpers.enum_field import EnumField, DbEnum
+from django.contrib.auth.models import AbstractUser
 
 
-Users = get_user_model()
+
+class Users(AbstractUser):
+    pass
 
 
 class Account(models.Model):
