@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('deposit', views.DepositMoneyView.as_view()),
+    path('deposit', views.DepositMoneyView.as_view(), name='deposit'),
     path('transfer', views.TransferMoneyView.as_view()),
     path('withdraw', views.WithdrawMoneyView.as_view()),
     path('users', views.UserView.as_view({'post': 'create'})),
