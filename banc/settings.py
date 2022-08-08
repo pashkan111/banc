@@ -1,10 +1,16 @@
 from pathlib import Path
 from celery.schedules import crontab
+import environ
 import os
 
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -70,16 +76,28 @@ WSGI_APPLICATION = 'banc.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
+if env('ENV') == 'prod':
+    DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'service',
-            'USER': 'postgres',
-            'PASSWORD': 1234,
-            'HOST': 'db',
-            'PORT': 5432
-    },
-}
+            'NAME': env('POSTGRES_DB_PROD'),
+            'USER': env('POSTGRES_PASSWORD_PROD'),
+            'PASSWORD': env('POSTGRES_USER_PROD'),
+            'HOST': env('POSTGRES_HOST_PROD'),
+            'PORT': env('POSTGRES_PORT_PROD')
+        },
+        }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('POSTGRES_DB_DEV'),
+            'USER': env('POSTGRES_USER_DEV'),
+            'PASSWORD': env('POSTGRES_PASSWORD_DEV'),
+            'HOST': env('POSTGRES_HOST_DEV'),
+            'PORT': env('POSTGRES_PORT_DEV')
+        },
+    }
 
 
 
