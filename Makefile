@@ -1,21 +1,20 @@
 APP_DIR := /code
 APP_NAME := web
-SETTINGS_PATH_PROD := banc.settings_prod
-SETTINGS_PATH_DEV := banc.settings_dev
+SETTINGS_PATH := banc.settings
 
 
-.PHONY: run
+test-dev:
+	pytest --ds=$(SETTINGS_PATH)
+
 run-dev:
 	python3 manage.py runserver
 
-.PHONY: test
-test-prod:
+test-prod: build
 	sudo docker-compose run --rm -- $(APP_NAME) pytest --ds=$(SETTINGS_PATH)
 
-.PHONY: run
 run-prod:
-	sudo docker-compose up --force-recreate --build $(APP_NAME)
+	sudo docker-compose up -d --build
 
-.PHONY: build
-build-prod:
+build:
 	sudo docker-compose build
+

@@ -81,12 +81,12 @@ if env('ENV') == 'prod':
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': env('POSTGRES_DB_PROD'),
-            'USER': env('POSTGRES_PASSWORD_PROD'),
-            'PASSWORD': env('POSTGRES_USER_PROD'),
+            'USER': env('POSTGRES_USER_PROD'),
+            'PASSWORD': env('POSTGRES_PASSWORD_PROD'),
             'HOST': env('POSTGRES_HOST_PROD'),
             'PORT': env('POSTGRES_PORT_PROD')
         },
-        }
+    }
 else:
     DATABASES = {
         'default': {

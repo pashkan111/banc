@@ -44,7 +44,7 @@ class WithdrawMoneyView(views.APIView):
         ActionCreator(account=account, delta=validated_data.delta).withdraw_money()
         balance = AccountBalance.get_balance(account)
         resp = DepositWithdrawResponseSchema(sum=balance)
-        return response.Response(data=resp.dict(), status=status.HTTP_201_CREATED)
+        return response.Response(data=resp.dict(), status=status.HTTP_200_OK)
     
     
 class TransferMoneyView(views.APIView):
