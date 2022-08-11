@@ -49,8 +49,8 @@ class AccountBalance:
 
 def check_balances(
     delta: int,
-    account_deposit_uid: Optional[Account]=None, 
-    account_withdraw_uid: Optional[Account]=None, 
+    account_deposit_uid: Optional[str]=None, 
+    account_withdraw_uid: Optional[str]=None, 
     ) -> Optional[bool]:
     """Checks limits of accounts"""
     if not any((account_deposit_uid, account_withdraw_uid)):

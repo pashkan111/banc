@@ -1,6 +1,6 @@
 from mainapp.logic.balance import AccountBalance
 from tests.fixtures import accounts,  deposit
-from mainapp.models import Users, Account, Action
+from mainapp.models import Action
 import pytest
 
 

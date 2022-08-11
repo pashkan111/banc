@@ -1,8 +1,9 @@
+from typing import Optional
 from django.db import models
 import uuid
 from helpers.enum_field import EnumField, DbEnum
 from django.contrib.auth.models import AbstractUser
-
+from exceptions.account_exceptions import AccountNotFound
 
 
 class Users(AbstractUser):
@@ -29,10 +30,10 @@ class Account(models.Model):
         return f'Account of {self.user.username}, {self.uid}'
     
     @classmethod
-    def get_account_by_id(cls, uid: str) -> 'Account':
+    def get_account_by_id(cls, uid: str) -> Optional['Account']:
         account = cls.objects.filter(uid=uid).first()
         if account is None:
-            pass
+            raise AccountNotFound
         return account
         
 

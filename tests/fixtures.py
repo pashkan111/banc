@@ -2,6 +2,7 @@ import pytest
 from mainapp.models import Users, Account, Action
 from rest_framework.test import APIClient
 from typing import List
+from rest_framework.authtoken.models import Token
 
 
 @pytest.fixture
@@ -44,3 +45,4 @@ def deposit(accounts: List[Account]):
 def api_client():
     client = APIClient()
     return client
+

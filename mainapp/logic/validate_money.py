@@ -1,4 +1,4 @@
-from exceptions.balance_exceptions import InvalidSum, LimitExceeded
+from exceptions.balance_exceptions import InvalidSum
 from typing import Optional
 
 
